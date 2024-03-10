@@ -1,13 +1,13 @@
-const User = require("../models/userModel");
+const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
-const UserDto = require("../dtos/userDto");
+const UserDto = require("../../dtos/userDto");
 
 const hashPassword = async (password) => {
   try {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
   } catch (error) {
-    throw new Error('Failed to hash password');
+    throw new Error("Failed to hash password");
   }
 };
 
@@ -35,24 +35,25 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    try {
-      // Check if the email already exists
-      const existingUser = await User.findOne({ email: req.body.email });
-      if (existingUser) {
-        return res.status(400).json({ error: true, message: "Email already exists" });
-      }
-  
-      const userDto = new UserDto(req.body);
-      userDto.password = await hashPassword(userDto.password);
-      let user = new User(userDto);
-      user = await user.save();
-      res.status(201).json(user);
-    } catch (error) {
-      console.error(`createUser Error: ${error.message}`);
-      res.status(500).json({ error: true, message: "Failed to create user" });
+  try {
+    // Check if the email already exists
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Email already exists" });
     }
-  };
-  
+
+    const userDto = new UserDto(req.body);
+    userDto.password = await hashPassword(userDto.password);
+    let user = new User(userDto);
+    user = await user.save();
+    res.status(201).json(user);
+  } catch (error) {
+    console.error(`createUser Error: ${error.message}`);
+    res.status(500).json({ error: true, message: "Failed to create user" });
+  }
+};
 
 exports.updateUser = async (req, res) => {
   try {
@@ -60,7 +61,9 @@ exports.updateUser = async (req, res) => {
       req.body.password = await hashPassword(req.body.password);
     }
     const userDto = new UserDto(req.body);
-    const user = await User.findByIdAndUpdate(req.params.id, userDto, { new: true });
+    const user = await User.findByIdAndUpdate(req.params.id, userDto, {
+      new: true,
+    });
     if (!user) {
       return res.status(404).json({ error: true, message: "User not found" });
     }

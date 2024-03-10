@@ -1,17 +1,13 @@
-require('dotenv').config();
-const express = require('express');
-const connectToMongoDB = require('./config/db');
-const startServer = require('./config/startServer')
-const userRoutes = require('./routes/userRoutes');
+require("dotenv").config();
+const express = require("express");
+const userRoutes = require("./api/routes/userRoutes");
+const authRoutes = require("./api/routes/authRoutes");
 
 const app = express();
 
-// Connect to Database
-connectToMongoDB();
-
+// Middleware to parse JSON bodies
 app.use(express.json());
-app.use('/api/users', userRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api", authRoutes);
 
-// Start the server
-startServer(app);
-
+module.exports = app;
